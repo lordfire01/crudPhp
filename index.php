@@ -128,23 +128,6 @@
 		  	</div>
 		</div>
 	</div>
-
-	<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-	  	<div class="modal-dialog">
-	    	<div class="modal-content">
-	      		<div class="modal-header">
-	        		<h5 class="modal-title" id="exampleModalLabel">Segundo Modal</h5>
-	      		</div>
-	      		<div class="modal-body">
-	        		Mostrando segundo modal
-	      		</div>
-	      		<div class="modal-footer">
-	        		<button type="button" class="btn btn-secondary" id="close">Close</button>
-	        		<button type="button" class="btn btn-primary">Save changes</button>
-	      		</div>
-	    	</div>
-	  	</div>
-	</div>
 	
 	<script type="text/javascript">
 
