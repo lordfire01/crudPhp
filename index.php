@@ -20,7 +20,7 @@
 
 	<script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js" type="text/javascript"></script>
 
-	<script src="js/jquery.mask.js" type="text/javascript"></script>
+	<script src="resources/js/jquery.mask.js" type="text/javascript"></script>
 </head>
 <body>
 	<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
