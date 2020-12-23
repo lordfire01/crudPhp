@@ -145,6 +145,115 @@
 	    	</div>
 	  	</div>
 	</div>
+	
+	<script type="text/javascript">
 
+		toastr.options = {
+		  	"closeButton": false,
+		  	"debug": false,
+		  	"newestOnTop": false,
+		  	"progressBar": false,
+		  	"positionClass": "toast-top-right",
+		  	"preventDuplicates": false,
+		  	"onclick": null,
+		  	"showDuration": "300",
+		  	"hideDuration": "1000",
+		  	"timeOut": "5000",
+		  	"extendedTimeOut": "1000",
+		  	"showEasing": "swing",
+		  	"hideEasing": "linear",
+		  	"showMethod": "fadeIn",
+		  	"hideMethod": "fadeOut"
+		}
+		$(document).ready(function() {
+
+			$('.phone').mask('(000) 000-00-00', {'placeholder': '(951) 123-45-67'});
+
+
+			var miTabla = $('#myTable').DataTable({
+				"ajax": 'crud.php?tipo=listado',
+				"columns": [
+					{"data": "nombre"},
+					{"data": "paterno"},
+					{"data": "materno"},
+					{"data": "fecha_nacimiento"},
+					{"data": "acciones"}
+				],
+				"language": {
+					sProcessing: "Procesando...",
+					sLengthMenu: "Mostrar _MENU_ registros",
+					sZeroRecords: "No se encontraron resultados",
+					sEmptyTable: "Ningún dato disponible en esta tabla",
+					sInfo: "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+					sInfoEmpty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+					sInfoFiltered: "(filtrado de un total de _MAX_ registros)",
+					sInfoPostFix: "",
+					sSearch: "Buscar:",
+					sUrl: "",
+					sInfoThousands: ",",
+					sLoadingRecords: "Cargando...",
+					oPaginate: {
+						sFirst: "Primero",
+						sLast: "Último",
+						sNext: "Siguiente",
+						sPrevious: "Anterior"
+					},
+					oAria: {
+						sSortAscending: ": Activar para ordenar la columna de manera ascendente",
+						sSortDescending: ": Activar para ordenar la columna de manera descendente"
+					}
+				}
+			});
+
+			$('#nuevo').on('click', function() {
+				$(':input').val('')
+				$('#titulo').html('Creando Alumno Nuevo');
+				$("#modalFormulario").modal('show');
+			});
+
+			$('#guardar').on('click', function() {
+				var data = $('#formulario').serialize();
+				$.ajax({
+					url: 'crud.php',
+					type: 'POST',
+					dataType: 'json',
+					data: data,
+					success: function(r) {
+						if (r.exito) {
+							toastr['success'](r.mensaje);
+							miTabla.ajax.reload();
+						} else {
+							toastr['error'](r.mensaje);
+						}
+						$('#modalFormulario').modal('hide');
+					}
+				});
+			});
+		});
+
+		function editar(id) {
+			$('#titulo').html('Editar Alumno');
+			$(':input').val('');
+			$.ajax({
+				url: 'crud.php',
+				type: 'GET',
+				dataType: 'json',
+				data: {tipo: 'show', id: id},
+				success: function(r) {
+					if (r.exito) {
+						$('#row_nombre').val(r.row.nombre);
+						$('#row_paterno').val(r.row.paterno);
+						$('#row_materno').val(r.row.materno);
+						$('#row_fecha_nacimiento').val(r.row.fecha_nacimiento);
+						$('#row_id').val(r.row.id)
+						$('#modalFormulario').modal('show');
+					} else {
+						toastr["error"](r.mensaje);
+					}
+				}
+			});
+			
+		}		
+	</script>
 </body>
 </html>
