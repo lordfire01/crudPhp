@@ -127,6 +127,38 @@
 		    	</div>
 		  	</div>
 		</div>
+
+		<div class="modal" id="modale" tabindex="-1">
+	        <div class="modal-dialog modal-lg">
+	            <div class="modal-content">
+	                <div class="modal-header">
+	                    <h5 class="modal-title">Eliminar</h5>
+	                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	                        <span aria-hidden="true">&times;</span>
+	                    </button>
+	                </div>
+	                <div class="modal-body">
+	                    <div class="container">
+	                        <div class="row">
+	                            <form id="forme">
+	                                <input type="hidden" name="row[id]" id="rowide">
+	                                <input type="hidden" name="row[nombre]" id="rowne">
+	                            </form>
+	                            <div class="col col-sm-12">
+	                                <label id="nombree"></label>
+	                            </div>
+	                            <div class="col col-sm-12">
+	                                <button type="button" class="btn btn-danger" id="eliminar">Eliminar</button>
+	                            </div>
+	                        </div>
+	                    </div> 
+	                </div>
+	                <div class="modal-footer">
+	                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+	                </div>
+	            </div>
+	        </div>
+	    </div>
 	</div>
 	
 	<script type="text/javascript">
@@ -148,6 +180,7 @@
 		  	"showMethod": "fadeIn",
 		  	"hideMethod": "fadeOut"
 		}
+
 		$(document).ready(function() {
 
 			$('.phone').mask('(000) 000-00-00', {'placeholder': '(951) 123-45-67'});
@@ -212,7 +245,55 @@
 					}
 				});
 			});
+
+			$('#eliminar').on('click', function()
+            {
+                var data = $('#forme').serialize();
+                $.ajax({
+                    url: 'crud.php',
+                    type: 'POST',
+                    dataType: 'json',
+                    data: data,
+                    success:function(r)
+                    {
+                        $('#modale').modal('hide');
+                        if (r.exito)
+                        {
+                            toastr['success'](r.mensaje);
+                            miTabla.ajax.reload(); 
+                        }
+                        else
+                        {
+                            toastr['error'](r.mensaje);
+                        }
+                    }
+                });
+            });
 		});
+
+		function eliminar(id)
+        {
+            $.ajax({
+                url: 'crud.php',
+                type: 'GET',
+                dataType: 'json',
+                data: {tipo: 'eliminar', id: id},
+                success: function(r)
+                {
+                    if (r.exito)
+                    {
+                        $('#rowide').val(r.row.id);
+                        $('#rowne').val('eliminar');
+                        $('#nombree').html('¿Eliminar a '+r.row.nombre+' '+r.row.apellidop+' '+r.row.apellidom+'?');
+                        $('#modale').modal('show');
+                    }
+                    else
+                    {
+                        toastr['error'](r.mensaje);
+                    }
+                }
+            })
+        }
 
 		function editar(id) {
 			$('#titulo').html('Editar Alumno');

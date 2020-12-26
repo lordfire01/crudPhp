@@ -8,24 +8,24 @@ $db = new MysqliDb ('localhost', 'root', '', 'extra');
 ** D => Delete (Eliminar)
 /**/
 
-$rulesCreate = [
-	'nombre' => ['required', 'min' => 3, 'max' =>25],
-	'paterno' => ['required', 'min:3', 'max:25'],
-	'materno' => ['min:3', 'max:25'],
-	'fecha_nacimiento' => ['required', 'date'],
-	'telefono' => ['required']
-];
+// $rulesCreate = [
+// 	'nombre' => ['required', 'min' => 3, 'max' =>25],
+// 	'paterno' => ['required', 'min:3', 'max:25'],
+// 	'materno' => ['min:3', 'max:25'],
+// 	'fecha_nacimiento' => ['required', 'date'],
+// 	'telefono' => ['required']
+// ];
 
-function validarDatos($post, $rules) {
-	$exito = true;
-	$mensaje = "";
-	foreach ($rules as $key => $rule) {
+// function validarDatos($post, $rules) {
+// 	$exito = true;
+// 	$mensaje = "";
+// 	foreach ($rules as $key => $rule) {
 		
-	}
+// 	}
 
-	//var_dump($exito, $mensaje);
-	die();
-}
+// 	//var_dump($exito, $mensaje);
+// 	die();
+// }
 
 if ($_POST) {
 	$tipo = 'guardar';
@@ -43,7 +43,8 @@ switch ($tipo) {
 				'paterno' => $r['paterno'],
 				'materno' => $r['materno'],
 				'fecha_nacimiento' => implode('-', array_reverse(explode('-', $r['fecha_nacimiento']))),
-				'acciones' => '<button type="button" class="btn btn-info btn-sm" onclick="editar('.$r['id'].')"><i class="fas fa-edit"></i></button>'
+				'acciones' => '<button type="button" class="btn btn-info btn-sm" onclick="editar('.$r['id'].')"><i class="fas fa-edit"></i></button>
+								<button class="btn btn-danger" title="eliminar" onclick="eliminar('.$r['id'].')"><i class="fas fa-trash"></i></button>'
 			];
 		}
 		$result['data'] = $data;
@@ -62,10 +63,11 @@ switch ($tipo) {
 	case 'guardar':
 		$post = $_POST['row'];
 		$id = $post['id'];
+		$nombre = $post['nombre'];
 		unset($post['id']);
 		if ($id == '') {
 			# Vamos a guardar un nuevo registro
-			$validar = validarDatos($post, $rulesCreate);
+			// $validar = validarDatos($post, $rulesCreate);
 			$row =  $db->insert ('alumnos', $post);
 			if ($row) {
 				$result = ['exito' => true, 'mensaje' => 'Alumno registrado correctamente.'];
@@ -73,16 +75,45 @@ switch ($tipo) {
 				$result = ['exito' => false, 'mensaje' => 'Error al insertar, intente otra vez.', "errorsql" => $db->getLastError()];
 			}
 		} else {
-			# Vamos a actualizar un registro
-			$db->where('id', $id);
-			if ($db->update('alumnos', $post)) {
-				$result = ['exito' => true, 'mensaje' => 'Registro actualizado correctamente.'];
-			} else {
-				$result = ['exito' => false, 'mensaje' => 'Error al actualizar, '. $db->getLastError()];
+
+			if ($nombre == 'eliminar')
+			{
+				$db->where('id', $id);
+				if ($db->delete('alumnos', $id))
+				{
+					$result = ['exito' => true, 'mensaje' => 'Registro eliminado'];
+				}
+				else
+				{
+					$result = ['exito' => false, 'mensaje' => 'Registro no eliminado, vuelva a intentar'];
+				}
+			}
+			else
+			{
+				# Vamos a actualizar un registro
+				$db->where('id', $id);
+				if ($db->update('alumnos', $post)) {
+					$result = ['exito' => true, 'mensaje' => 'Registro actualizado correctamente.'];
+				} else {
+					$result = ['exito' => false, 'mensaje' => 'Error al actualizar, '. $db->getLastError()];
+				}
 			}
 		}
 		break;
-	
+
+	case 'eliminar':
+		$db->where('id', $_GET['id']);
+		$row = $db->getOne('alumnos');
+		if (!is_null($row))
+		{
+			$result = ['exito' => true, 'row' => $row];
+		}
+		else
+		{
+			$result = ['exito' => false, 'mensaje' => 'no hay registro vinculado'];
+		}
+		break;
+
 	default:
 		$result['data'] = [];
 		break;
