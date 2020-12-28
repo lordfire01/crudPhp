@@ -109,7 +109,7 @@
 		      							</div>
 		      							<div class="form-group">
 		      								<label>Fecha Nacimiento</label>
-		      								<input type="text" name="row[fecha_nacimiento]" id="row_fecha_nacimiento" class="form-control">
+		      								<input type="text" name="row[fecha_nacimiento]" id="row_fecha_nacimiento" class="form-control date">
 		      							</div>
 		      							<div class="form-group">
 		      								<label>Telefono</label>
@@ -183,7 +183,8 @@
 
 		$(document).ready(function() {
 
-			$('.phone').mask('(000) 000-00-00', {'placeholder': '(951) 123-45-67'});
+			$('.phone').mask('(000) 000-00-00', {'placeholder': '(000) 000-00-00'});
+			$('.date').mask('00-00-0000', {'placeholder': 'DD-MM-AAAA'});
 
 
 			var miTabla = $('#myTable').DataTable({
@@ -236,12 +237,15 @@
 					data: data,
 					success: function(r) {
 						if (r.exito) {
+							$('#modalFormulario').modal('hide');
 							toastr['success'](r.mensaje);
 							miTabla.ajax.reload();
 						} else {
-							toastr['error'](r.mensaje);
+							for(var i = 0; i < r.mensaje.length; i++)
+							{
+								toastr['error'](r.mensaje[i]);
+							}
 						}
-						$('#modalFormulario').modal('hide');
 					}
 				});
 			});

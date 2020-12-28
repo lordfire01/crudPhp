@@ -8,24 +8,68 @@ $db = new MysqliDb ('localhost', 'root', '', 'extra');
 ** D => Delete (Eliminar)
 /**/
 
-// $rulesCreate = [
-// 	'nombre' => ['required', 'min' => 3, 'max' =>25],
-// 	'paterno' => ['required', 'min:3', 'max:25'],
-// 	'materno' => ['min:3', 'max:25'],
-// 	'fecha_nacimiento' => ['required', 'date'],
-// 	'telefono' => ['required']
-// ];
+$rulesCreate = [
+	'nombre' => ['required' => 'required', 'min' => 3, 'max' => 25],
+	'paterno' => ['required' => 'required', 'min' => 3, 'max' => 25],
+	'materno' => ['min' => 3, 'max' => 25],
+	'fecha_nacimiento' => ['required' => 'required', 'date' => 'date'],
+	'telefono' => ['required' => 'required']
+];
 
-// function validarDatos($post, $rules) {
-// 	$exito = true;
-// 	$mensaje = "";
-// 	foreach ($rules as $key => $rule) {
-		
-// 	}
+$cambioCampo = 
+[
+	'nombre' => 'Nombres',
+	'paterno' => 'Apellido paterno',
+	'materno' => 'Apellido materno',
+	'fecha_nacimiento' => 'Fecha de nacimiento',
+	'telefono' => 'Telefono'
+];
 
-// 	//var_dump($exito, $mensaje);
-// 	die();
-// }
+function validarDatos($post, $rules, $cambio) {
+	$exito = true;
+	$mensaje = [];
+	foreach ($post as $key => $value) {
+		foreach ($rules[$key] as $r => $rule) {
+			if ($r === 'required')
+			{
+				if ($value == '' || is_null($value))
+				{
+					$exito = false;
+					$mensaje[] = 'El campo '.$cambio[$key].' es obligatorio';
+				}
+			}
+			if ($r === 'min')
+			{
+				if (strlen($value) < $rule && !($value == '' || is_null($value)))
+				{
+					$exito = false;
+					$mensaje[] = 'El campo '.$cambio[$key].' debe contener almenos '.$rule.' caracteres';
+				}
+			}
+			if ($r === 'max')
+			{
+				if (strlen($value) > $rule)
+				{
+					$exito = false;
+					$mensaje[] = 'El campo '.$cambio[$key].' debe contener maximo '.$rule.' caracteres';
+				}
+			}
+			if ($r === 'date') {
+				if (strtotime('31-12-1899') > strtotime($value) && !($value == '' || is_null($value)))
+				{
+					$exito = false;
+					$mensaje[] = 'La fecha de nacimiento no puede ser menor a 1900';
+				}
+				if (time() < strtotime($value))
+				{
+					$exito = false;
+					$mensaje[] = 'La fecha de nacimiento no puede ser mayor a la actual';
+				}
+			}
+		}
+	}
+	return array($exito, $mensaje);
+}
 
 if ($_POST) {
 	$tipo = 'guardar';
@@ -66,14 +110,21 @@ switch ($tipo) {
 		$nombre = $post['nombre'];
 		unset($post['id']);
 		if ($id == '') {
-			# Vamos a guardar un nuevo registro
-			// $validar = validarDatos($post, $rulesCreate);
-			$row =  $db->insert ('alumnos', $post);
-			if ($row) {
-				$result = ['exito' => true, 'mensaje' => 'Alumno registrado correctamente.'];
-			} else {
-				$result = ['exito' => false, 'mensaje' => 'Error al insertar, intente otra vez.', "errorsql" => $db->getLastError()];
+			$validar = validarDatos($post, $rulesCreate,$cambioCampo);
+			if ($validar[0])
+			{
+				$row =  $db->insert ('alumnos', $post);
+				if ($row) {
+					$result = ['exito' => true, 'mensaje' => 'Alumno registrado correctamente.'];
+				} else {
+					$result = ['exito' => false, 'mensaje' => 'Error al insertar, intente otra vez.', "errorsql" => $db->getLastError()];
+				}
 			}
+			else
+			{
+				$result = ['exito' => false, 'mensaje' => $validar[1]];
+			}
+
 		} else {
 
 			if ($nombre == 'eliminar')
